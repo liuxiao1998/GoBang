@@ -15,133 +15,38 @@ public class DrawBoard extends JComponent
     private  static final short BLACK=1;
     private  static final short WHITE=-1;
     private  static final short EMPTY=0;
-    private static final int DEFAULT_WIDTH=750;
-    private static final int DEFAULT_HEIGHT=750;
+    private static final int DEFAULT_WIDTH=720;
+    private static final int DEFAULT_HEIGHT=720;
     private static final int CHESS_Radius=15;
 
-
-    private short checkLineFinished(ArrayList<Short> line)
-    {
-        //System.out.println(line);
-        int countBlack=0;
-        int countWhite=0;
-        for(int i=0;i<line.size();i++)
-        {
-            if(line.get(i)==BLACK){
-                countWhite=0;
-                countBlack+=1;
-            }
-
-            else if(line.get(i)==WHITE){
-                countBlack=0;
-                countWhite+=1;
-            }
-            else if(line.get(i)==EMPTY){
-                countBlack=0;
-                countWhite=0;
-            }
-            if(countBlack==5){
-                return 1;
-            }
-            else if(countWhite==5){
-                return -1;
-            }
-        }
-        return 0;
-    }
-
-    public short checkMap(){
-        var aLine=new ArrayList<Short>();
-        short res=0;
-
-        //横向检查(___)
+    public void restart(){
         for(int i=0;i<grid.length;i++){
-            aLine.clear();
-            for(int j=0;j<grid[i].length;j++){
-                aLine.add((Short)grid[i][j]);
-            }
-            res=checkLineFinished(aLine);
-            if(res!=0){
-                return res; 
+            for(int j=0;j<grid[0].length;j++){
+                grid[i][j]=EMPTY;
             }
         }
-
-        //竖直方向检查(|||)
-         for(int i=0;i<grid[0].length;i++){
-            aLine.clear();
-            for(int j=0;j<grid.length;j++){
-                aLine.add((Short)grid[j][i]);
-            }
-            res=checkLineFinished(aLine);
-            if(res!=0){
-                return res; 
-            }
-        }
-
-        //右斜检查(\\\)
-        for(int i=0;i<grid.length-4;i++){
-            aLine.clear();
-            int x=i;
-            int y=0;
-            while(x<grid.length){
-                aLine.add((Short)grid[x][y]);
-                x+=1;
-                y+=1;
-            }
-            res=checkLineFinished(aLine);
-            if(res!=0){
-                return res; 
-            }
-        }
-
-        for(int j=1;j<grid[0].length-4;j++){
-
-            aLine.clear();
-            int x=0;
-            int y=j;
-            while(y<grid[0].length){
-                aLine.add((Short)grid[x][y]);
-                x+=1;
-                y+=1;
-            }
-            res=checkLineFinished(aLine);
-            if(res!=0){
-                return res; 
-            }
-        }
-        //左斜检查  (///)
-        for(int i=4;i<grid.length;i++){
-            aLine.clear();
-            int x=i;
-            int y=0;
-            while(x>=0){
-                aLine.add((Short)grid[x][y]);
-                x-=1;
-                y+=1;
-            }
-            res=checkLineFinished(aLine);
-            if(res!=0){
-                return res; 
-            }
-        }
-
-        for(int i=1;i<grid[0].length-4;i++){
-            aLine.clear();
-            int x=grid.length-1;
-            int y=i;
-            while(y<grid[0].length){
-                aLine.add((Short)grid[x][y]);
-                x-=1;
-                y+=1;
-            }
-            res=checkLineFinished(aLine);
-            if(res!=0){
-                return res; 
-            }
-        }
-        return 0;
+        locationCollection.clear();
+        WHOWIN=0;
+        this.repaint();
     }
-
+    public boolean regret(){
+        if(this.WHOWIN==0){
+            this.remove();
+            return false;
+        }
+        return true;
+    }
+    private void remove(){
+        if(!locationCollection.isEmpty()){
+            int last=locationCollection.size()-1;
+            Ellipse2D lastPoint=locationCollection.get(last);
+            int m=(int)Math.round((lastPoint.getX()-75)/40);
+            int n=(int)Math.round((lastPoint.getY()-75)/40);
+            grid[m][n]=EMPTY;
+            locationCollection.remove(last);
+            this.repaint();
+        }
+    }
     private void add(Point2D p)
     {
         double x=p.getX();
@@ -151,46 +56,45 @@ public class DrawBoard extends JComponent
         }
         int m=(int)Math.round((x-75)/40.0);
         int n=(int)Math.round((y-75)/40.0);
-        x=75+m*40;
-        y=75+n*40;
-        locationCollection.add(new Ellipse2D.Double(x-CHESS_Radius,y-CHESS_Radius,2*CHESS_Radius,2*CHESS_Radius));
+        if(grid[m][n]!=EMPTY){
+            return;
+        }
+
+        
         if(locationCollection.size()%2==0)
         {
-            grid[m][n]=WHITE;
-        }
-        else{
             grid[m][n]=BLACK;
         }
-        repaint();
-        switch(checkMap()){
+        else{
+            grid[m][n]=WHITE;
+        }
+        x=75+m*40;
+        y=75+n*40;
+        
+        locationCollection.add(new Ellipse2D.Double(x-CHESS_Radius,y-CHESS_Radius,2*CHESS_Radius,2*CHESS_Radius));
+        this.repaint();
+        switch(CheckTools.checkMap(grid)){
             case 1:
-            System.out.println("BLAKC WIN!");
+            //System.out.println("BLAKC WIN!");
             WHOWIN=BLACK;
+            JOptionPane.showMessageDialog(null,"恭喜黑色棋子胜出!!!   快叫好老婆!");
             break;
             case -1:
-            System.out.println("WHITE WIN!");
+            //System.out.println("WHITE WIN!");
             WHOWIN=WHITE;
+            JOptionPane.showMessageDialog(null,"恭喜白色棋子胜出!!!   快叫好老公!");
             break;
             default:
 
         }
     }
 
-    private Point2D find(Point2D p)
-    {
-        for(Ellipse2D r:locationCollection){
-            if(r.contains(p))    return p;
-        }
-        return null;
-
-    }
 
     private class MouseHandler extends MouseAdapter
     {
         public void mouseClicked(MouseEvent event)
         {
-            Point2D current=find(event.getPoint());
-            if(current==null && event.getClickCount() >=2 && WHOWIN==0)
+            if(event.getClickCount() >=1 && WHOWIN==0)
             { 
                 add(event.getPoint());
             }
@@ -199,6 +103,8 @@ public class DrawBoard extends JComponent
 
 
     public DrawBoard(){
+        //this.setBackground(Color.PINK);
+        //this.setOpaque(true);
         grid=new short[15][15];
         locationCollection=new ArrayList<Ellipse2D>();
         addMouseListener(new MouseHandler());
@@ -207,6 +113,9 @@ public class DrawBoard extends JComponent
     public void paintComponent(Graphics g){
         var g2=(Graphics2D)g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING , RenderingHints.VALUE_ANTIALIAS_ON);
+        Image backGroundImage=new ImageIcon("BoardBackground.jpg").getImage();
+        g2.drawImage(backGroundImage,0,0,DEFAULT_WIDTH,DEFAULT_HEIGHT,null);
+
         for(int i=1;i<14;i++){
             var startUp=new Point2D.Double(75+i*40,75);
             var endDown=new Point2D.Double(75+i*40,635);
@@ -225,10 +134,33 @@ public class DrawBoard extends JComponent
                 g2.setPaint(Color.BLACK);
             }
             else{
-                g2.setPaint(Color.WHITE);
+                g2.setPaint(new Color(255,251,240));
             }
             g2.draw(locationCollection.get(i));
             g2.fill(locationCollection.get(i));
+        }
+
+        int num= locationCollection.size()-1;
+        if(num>-1){
+        Ellipse2D currentPoint=locationCollection.get(num);
+        double x=currentPoint.getX();
+        double y=currentPoint.getY();
+        x=x+CHESS_Radius;
+        y=y+CHESS_Radius;
+        var startL=new Point2D.Double(x-CHESS_Radius/2.0,y);
+        var startR=new Point2D.Double(x+CHESS_Radius/2.0,y);
+        var startU=new Point2D.Double(x,y+CHESS_Radius/2.0);
+        var startD=new Point2D.Double(x,y-CHESS_Radius/2.0);
+        var lineV=new Line2D.Double(startL,startR);
+        var lineH=new Line2D.Double(startU,startD);
+        if(num%2==0){
+            g2.setPaint(Color.WHITE);
+        }
+        else{
+            g2.setPaint(Color.BLACK);
+        }
+        g2.draw(lineH);
+        g2.draw(lineV);
         }
     }
 

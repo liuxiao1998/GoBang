@@ -1,68 +1,26 @@
 import java.util.ArrayList;
-import java.awt.*;
-import javax.swing.*;
-import java.awt.geom.*;
+public class CheckTools{
+    private  static final short BLACK=1;
+    private  static final short WHITE=-1;
+    private  static final short EMPTY=0;
 
-
-public class MyBoard
-{
-    private short[][] grid; 
-    private  short black=1;
-    private  short white=-1;
-    private  short empty=0;
-
-    public boolean setBlack(int x,int y){
-        if(-1<x && x<grid.length && -1<y && y<grid[0].length){
-            if(grid[x][y]==empty){
-                grid[x][y]=black;
-                return true;
-            }
-            else{
-                return false;
-                //do somthing
-            }
-        }
-        else{
-            return false;
-            //exception throw
-        }
-
-
-    }
-
-    public boolean setWhite(int x,int y){
-        if(-1<x && x<grid.length && -1<y && y<grid[0].length){
-            if(grid[x][y]==empty){
-                grid[x][y]=white;
-                return true;
-            }
-            else{
-                return false;
-                //do somthing
-            }
-        }
-        else{
-            return false;
-            //exception throw
-        }
-    }
-    private short checkLineFinished(ArrayList<Short> line)
+    private static short checkLineFinished(ArrayList<Short> line)
     {
         //System.out.println(line);
         int countBlack=0;
         int countWhite=0;
         for(int i=0;i<line.size();i++)
         {
-            if(line.get(i)==black){
+            if(line.get(i)==BLACK){
                 countWhite=0;
                 countBlack+=1;
             }
 
-            else if(line.get(i)==white){
+            else if(line.get(i)==WHITE){
                 countBlack=0;
                 countWhite+=1;
             }
-            else if(line.get(i)==empty){
+            else if(line.get(i)==EMPTY){
                 countBlack=0;
                 countWhite=0;
             }
@@ -76,7 +34,8 @@ public class MyBoard
         return 0;
     }
 
-    public short checkMap(){
+
+    public static short checkMap(short[][] grid){
         var aLine=new ArrayList<Short>();
         short res=0;
 
@@ -168,40 +127,4 @@ public class MyBoard
         return 0;
     }
 
-    public void paintMap(){
-        for(int m=0;m<=grid.length;m++){
-                System.out.printf("%02d  ",m);
-            }
-        System.out.println();
-        for(int i=0;i<grid[0].length;i++){
-            System.out.printf("%02d  ",i+1);
-
-            for(int j=0;j<grid.length;j++){
-                switch(grid[i][j]){
-                    case 1:
-                    System.out.print("B");
-                    break;
-                    case -1:
-                    System.out.print("W");
-                    break;
-                    case 0:
-                     System.out.print("*");
-                     default:
-
-
-                }
-                System.out.print("   ");
-            }
-            System.out.println();
-            System.out.println();
-        }
-    }
-    public MyBoard(int width,int height) 
-    {
-        //define the width and height of chess board
-        grid=new short[width][height];
-       // setSize(width*50,height*50);
-
-    }
 }
-
