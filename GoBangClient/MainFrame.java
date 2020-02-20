@@ -9,7 +9,7 @@ import javax.imageio.*;
 public class MainFrame extends JFrame
 {
     private JPanel buttonPanel;
-    private DrawBoard drawBoard;
+    private BoardComponent drawBoard;
     private JButton buttonRegret;
     private JButton buttonRestart;
     public MainFrame() 
@@ -17,7 +17,7 @@ public class MainFrame extends JFrame
 
         //this.getContentPane().setBackground(new Color(213,176,146));
         buttonPanel = new JPanel();
-        drawBoard=new DrawBoard();
+        drawBoard=new BoardComponent();
         buttonPanel.setLayout(new GridLayout(5,1));
         buttonRegret=new JButton("悔棋");
         buttonRestart=new JButton("重新开始");
@@ -36,6 +36,8 @@ public class MainFrame extends JFrame
 
 
     }
+
+
     private class regretAction implements ActionListener{
         public void actionPerformed(ActionEvent event){
             drawBoard.regret();
